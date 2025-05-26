@@ -1,0 +1,53 @@
+name: Claude Max Code Assistant
+
+on:
+  issue_comment:
+    types: [created]
+  pull_request_review_comment:
+    types: [created]
+  issues:
+    types: [opened, assigned]
+  pull_request_review:
+    types: [submitted]
+
+jobs:
+  claude-assistant:
+    # @claudeトリガーのチェック
+    if: |
+      (github.event_name == 'issue_comment' && contains(github.event.comment.body, '@claude')) ||
+      (github.event_name == 'pull_request_review_comment' && contains(github.event.comment.body, '@claude')) ||
+      (github.event_name == 'pull_request_review' && contains(github.event.review.body, '@claude')) ||
+      (github.event_name == 'issues' && contains(github.event.issue.body, '@claude'))
+    
+    # セルフホストランナーを指定
+    runs-on: [self-hosted, claude-enabled]
+    
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: write
+      
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          
+      - name: Run Claude Max Assistant
+        uses: YoshibaTakumu/claude-code-base-action@main
+        with:
+          prompt: |
+            You are helping with a GitHub issue or PR. 
+            
+            Context:
+            - Repository: ${{ github.repository }}
+            - Event: ${{ github.event_name }}
+            - Actor: ${{ github.actor }}
+            
+            ${{ github.event_name == 'issue_comment' && format('Comment: {0}', github.event.comment.body) || '' }}
+            ${{ github.event_name == 'issues' && format('Issue: {0}', github.event.issue.body) || '' }}
+            ${{ github.event_name == 'pull_request_review' && format('Review: {0}', github.event.review.body) || '' }}
+            
+            Please provide helpful assistance for this request.
+          allowed_tools: "Bash(git:*),View,Edit,Write"
+          timeout_minutes: "15"
