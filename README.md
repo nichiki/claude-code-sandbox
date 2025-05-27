@@ -1,48 +1,38 @@
-# claude-code-sandbox
+# Claude Code Sandbox
 
-A sandbox repository for testing and experimenting with Claude Code integration.
+様々なプロジェクトのプロトタイピングと実験を行うサンドボックスリポジトリ
 
-## Overview
+## 🎯 このリポジトリについて
 
-This repository serves as a testing ground for Claude Code capabilities and GitHub integration workflows.
+このリポジトリは、Claude Codeを使用して様々なアイデアを素早く形にするための実験場です。有望なプロジェクトは後に独立したリポジトリとして切り出されます。
 
-## Features
+## 📁 現在のプロジェクト
 
-- Automated issue and pull request handling with Claude Code
-- Code review and implementation assistance
-- Test environment for new Claude Code features
+| プロジェクト | 説明 | ステータス |
+|------------|------|----------|
+| [modern-tetris](./projects/modern-tetris) | モダンなデザインのテトリス | 🚧 開発中 |
+| [ultra-fast-reader](./projects/ultra-fast-reader) | 超高速リーディングサイト | 🚧 開発中 |
 
-## Getting Started
+## 🚀 使い方
 
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/nichiki/claude-code-sandbox.git
-   cd claude-code-sandbox
-   ```
+新しいプロジェクトを始めるには、Issueを作成して`@claude`をメンションしてください：
 
-2. Create an issue or pull request and mention `@claude` to trigger Claude Code assistance.
+```markdown
+@claude
 
-## Usage
+新しいプロジェクト「プロジェクト名」を projects/ ディレクトリに作成してください。
 
-To interact with Claude Code in this repository:
+[詳細な要件]
+```
 
-- **For issues**: Create a new issue and include `@claude` followed by your request
-- **For pull requests**: Mention `@claude` in a PR comment with your request
+## 📝 プロジェクト管理
 
-Claude Code can help with:
-- Code reviews
-- Implementation of features
-- Bug fixes
-- Documentation updates
-- General programming questions
+- **実験段階**: `projects/` ディレクトリで開発
+- **成熟したら**: 独立リポジトリへ移行
+- **完了後**: `archive/` へ移動
 
-## Contributing
+詳細は [CLAUDE.md](./CLAUDE.md) を参照してください。
 
-Contributions are welcome! Feel free to:
-- Open issues for bugs or feature requests
-- Submit pull requests with improvements
-- Test Claude Code capabilities
+## ⚙️ GitHub Actions
 
-## License
-
-This project is open source and available under the [MIT License](LICENSE).
+このリポジトリには Claude Code が自動実行される GitHub Actions が設定されています。

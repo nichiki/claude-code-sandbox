@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>モダンテトリス</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Orbitron', monospace;
+            overflow: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(circle at 20% 80%, rgba(255, 255, 255, 0.03) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.03) 0%, transparent 50%);
+            pointer-events: none;
+        }
+        
+        #game-wrapper {
+            display: flex;
+            gap: 30px;
+            align-items: flex-start;
+            padding: 20px;
+        }
+
+        #left-panel, #right-panel {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 
+                0 8px 32px 0 rgba(31, 38, 135, 0.37),
+                inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+            min-width: 200px;
+        }
+        
+        #game-container {
+            position: relative;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 
+                0 8px 32px 0 rgba(31, 38, 135, 0.37),
+                inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+        }
+        
+        canvas {
+            border-radius: 10px;
+            box-shadow: 
+                0 0 20px rgba(0, 0, 0, 0.5),
+                inset 0 0 20px rgba(255, 255, 255, 0.1);
+            background: #0a0a0a;
+            display: block;
+        }
+
+        .info-section {
+            margin-bottom: 25px;
+        }
+
+        .info-section h3 {
+            color: #fff;
+            font-size: 14px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+            opacity: 0.7;
+        }
+
+        .info-value {
+            color: #fff;
+            font-size: 28px;
+            font-weight: 900;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+        }
+
+        #level {
+            color: #0DC2FF;
+            text-shadow: 0 0 20px rgba(13, 194, 255, 0.8);
+        }
+
+        #lines {
+            color: #0DFF72;
+            text-shadow: 0 0 20px rgba(13, 255, 114, 0.8);
+        }
+
+        .next-piece-container {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100px;
+        }
+
+        #next-canvas {
+            border-radius: 5px;
+        }
+        
+        #game-over {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.9);
+            color: #fff;
+            padding: 50px 80px;
+            border-radius: 20px;
+            text-align: center;
+            display: none;
+            box-shadow: 0 0 50px rgba(255, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            z-index: 100;
+            min-width: 320px;
+            white-space: nowrap;
+        }
+
+        #game-over h2 {
+            font-size: 36px;
+            margin-bottom: 20px;
+            color: #ff0066;
+            text-shadow: 0 0 20px rgba(255, 0, 102, 0.8);
+        }
+
+        #final-score {
+            font-size: 24px;
+            margin-bottom: 30px;
+            white-space: nowrap;
+        }
+
+        .restart-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 16px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-family: 'Orbitron', monospace;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            white-space: nowrap;
+        }
+
+        .restart-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+        
+        #controls {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 15px;
+            margin-top: 20px;
+        }
+
+        #controls h3 {
+            color: #fff;
+            font-size: 14px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 15px;
+            opacity: 0.7;
+        }
+
+        .control-item {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 12px;
+            margin: 10px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: nowrap;
+            white-space: nowrap;
+        }
+
+        .key {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 4px 8px;
+            border-radius: 5px;
+            font-weight: 700;
+            min-width: 30px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            font-size: 11px;
+            flex-shrink: 0;
+        }
+
+        @keyframes lineComplete {
+            0% { background-color: rgba(255, 255, 255, 0.8); }
+            100% { background-color: transparent; }
+        }
+
+        .line-clear-effect {
+            animation: lineComplete 0.5s ease-out;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .score-update {
+            animation: pulse 0.3s ease-out;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-wrapper">
+        <div id="left-panel">
+            <div class="info-section">
+                <h3>スコア</h3>
+                <div id="score" class="info-value">0</div>
+            </div>
+            <div class="info-section">
+                <h3>レベル</h3>
+                <div id="level" class="info-value">1</div>
+            </div>
+            <div class="info-section">
+                <h3>ライン</h3>
+                <div id="lines" class="info-value">0</div>
+            </div>
+        </div>
+
+        <div id="game-container">
+            <canvas id="tetris" width="300" height="600"></canvas>
+            <div id="game-over">
+                <h2>GAME OVER</h2>
+                <div id="final-score">最終スコア: <span>0</span></div>
+                <button class="restart-btn" onclick="restartGame()">もう一度プレイ</button>
+            </div>
+        </div>
+
+        <div id="right-panel">
+            <div class="info-section">
+                <h3>次のピース</h3>
+                <div class="next-piece-container">
+                    <canvas id="next-canvas" width="120" height="80"></canvas>
+                </div>
+            </div>
+            <div id="controls">
+                <h3>操作方法</h3>
+                <div class="control-item">
+                    <span class="key">←→</span> 左右移動
+                </div>
+                <div class="control-item">
+                    <span class="key">↓</span> 高速落下
+                </div>
+                <div class="control-item">
+                    <span class="key">↑</span> 回転
+                </div>
+                <div class="control-item">
+                    <span class="key">SPC</span> 即落下
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('tetris');
+        const ctx = canvas.getContext('2d');
+        const nextCanvas = document.getElementById('next-canvas');
+        const nextCtx = nextCanvas.getContext('2d');
+        const scoreElement = document.getElementById('score');
+        const levelElement = document.getElementById('level');
+        const linesElement = document.getElementById('lines');
+        const gameOverElement = document.getElementById('game-over');
+        const finalScoreElement = document.querySelector('#final-score span');
+
+        const ROWS = 20;
+        const COLS = 10;
+        const BLOCK_SIZE = 30;
+        const NEXT_BLOCK_SIZE = 20;
+
+        let board = [];
+        let currentPiece = null;
+        let nextPiece = null;
+        let currentX = 0;
+        let currentY = 0;
+        let score = 0;
+        let level = 1;
+        let lines = 0;
+        let gameOver = false;
+        let dropInterval;
+        let dropSpeed = 500;
+
+        const COLORS = [
+            '#FF0D72', '#0DC2FF', '#0DFF72', '#F538FF',
+            '#FF8E0D', '#FFE138', '#3877FF'
+        ];
+
+        const PIECES = [
+            [[1, 1, 1, 1]],  // I
+            [[1, 1], [1, 1]],  // O
+            [[1, 1, 1], [0, 1, 0]],  // T
+            [[1, 1, 1], [1, 0, 0]],  // L
+            [[1, 1, 1], [0, 0, 1]],  // J
+            [[1, 1, 0], [0, 1, 1]],  // S
+            [[0, 1, 1], [1, 1, 0]]   // Z
+        ];
+
+        function init() {
+            board = [];
+            for (let r = 0; r < ROWS; r++) {
+                board[r] = [];
+                for (let c = 0; c < COLS; c++) {
+                    board[r][c] = 0;
+                }
+            }
+            score = 0;
+            level = 1;
+            lines = 0;
+            gameOver = false;
+            dropSpeed = 500;
+            updateStats();
+            
+            nextPiece = createPiece();
+            spawnPiece();
+            dropInterval = setInterval(drop, dropSpeed);
+            draw();
+        }
+
+        function createPiece() {
+            const pieceIndex = Math.floor(Math.random() * PIECES.length);
+            return {
+                shape: PIECES[pieceIndex],
+                color: COLORS[pieceIndex],
+                type: pieceIndex
+            };
+        }
+
+        function spawnPiece() {
+            currentPiece = nextPiece;
+            nextPiece = createPiece();
+            currentX = Math.floor((COLS - currentPiece.shape[0].length) / 2);
+            currentY = 0;
+
+            drawNextPiece();
+
+            if (collision()) {
+                gameOver = true;
+                clearInterval(dropInterval);
+                gameOverElement.style.display = 'block';
+                finalScoreElement.textContent = score;
+            }
+        }
+
+        function drawNextPiece() {
+            nextCtx.clearRect(0, 0, nextCanvas.width, nextCanvas.height);
+            nextCtx.fillStyle = nextPiece.color;
+            
+            const offsetX = (nextCanvas.width - nextPiece.shape[0].length * NEXT_BLOCK_SIZE) / 2;
+            const offsetY = (nextCanvas.height - nextPiece.shape.length * NEXT_BLOCK_SIZE) / 2;
+            
+            for (let r = 0; r < nextPiece.shape.length; r++) {
+                for (let c = 0; c < nextPiece.shape[r].length; c++) {
+                    if (nextPiece.shape[r][c]) {
+                        drawBlock(nextCtx, offsetX + c * NEXT_BLOCK_SIZE, offsetY + r * NEXT_BLOCK_SIZE, NEXT_BLOCK_SIZE, nextPiece.color);
+                    }
+                }
+            }
+        }
+
+        function drawBlock(context, x, y, size, color) {
+            const gradient = context.createLinearGradient(x, y, x + size, y + size);
+            gradient.addColorStop(0, color);
+            gradient.addColorStop(1, adjustColor(color, -30));
+            
+            context.fillStyle = gradient;
+            context.fillRect(x, y, size - 1, size - 1);
+            
+            context.strokeStyle = adjustColor(color, 40);
+            context.lineWidth = 1;
+            context.strokeRect(x, y, size - 1, size - 1);
+            
+            context.fillStyle = 'rgba(255, 255, 255, 0.3)';
+            context.fillRect(x + 2, y + 2, size - 5, 2);
+            context.fillRect(x + 2, y + 2, 2, size - 5);
+        }
+
+        function adjustColor(color, amount) {
+            const num = parseInt(color.replace("#", ""), 16);
+            const r = Math.max(0, Math.min(255, (num >> 16) + amount));
+            const g = Math.max(0, Math.min(255, ((num >> 8) & 0x00FF) + amount));
+            const b = Math.max(0, Math.min(255, (num & 0x0000FF) + amount));
+            return "#" + ((r << 16) | (g << 8) | b).toString(16).padStart(6, '0');
+        }
+
+        function draw() {
+            ctx.fillStyle = '#0a0a0a';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            for (let r = 0; r < ROWS; r++) {
+                for (let c = 0; c < COLS; c++) {
+                    if (r > 0 && c > 0) {
+                        ctx.strokeStyle = 'rgba(255, 255, 255, 0.03)';
+                        ctx.strokeRect(c * BLOCK_SIZE, r * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+                    }
+                    
+                    if (board[r][c]) {
+                        drawBlock(ctx, c * BLOCK_SIZE, r * BLOCK_SIZE, BLOCK_SIZE, board[r][c]);
+                    }
+                }
+            }
+
+            if (currentPiece) {
+                drawGhostPiece();
+                
+                for (let r = 0; r < currentPiece.shape.length; r++) {
+                    for (let c = 0; c < currentPiece.shape[r].length; c++) {
+                        if (currentPiece.shape[r][c]) {
+                            drawBlock(ctx, (currentX + c) * BLOCK_SIZE, (currentY + r) * BLOCK_SIZE, BLOCK_SIZE, currentPiece.color);
+                        }
+                    }
+                }
+            }
+        }
+
+        function drawGhostPiece() {
+            let ghostY = currentY;
+            while (!collisionAt(currentX, ghostY + 1)) {
+                ghostY++;
+            }
+            
+            ctx.globalAlpha = 0.2;
+            for (let r = 0; r < currentPiece.shape.length; r++) {
+                for (let c = 0; c < currentPiece.shape[r].length; c++) {
+                    if (currentPiece.shape[r][c]) {
+                        drawBlock(ctx, (currentX + c) * BLOCK_SIZE, (ghostY + r) * BLOCK_SIZE, BLOCK_SIZE, currentPiece.color);
+                    }
+                }
+            }
+            ctx.globalAlpha = 1;
+        }
+
+        function collisionAt(x, y) {
+            for (let r = 0; r < currentPiece.shape.length; r++) {
+                for (let c = 0; c < currentPiece.shape[r].length; c++) {
+                    if (currentPiece.shape[r][c]) {
+                        const newX = x + c;
+                        const newY = y + r;
+                        if (newX < 0 || newX >= COLS || newY >= ROWS || (newY >= 0 && board[newY][newX])) {
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
+        }
+
+        function collision() {
+            return collisionAt(currentX, currentY);
+        }
+
+        function merge() {
+            for (let r = 0; r < currentPiece.shape.length; r++) {
+                for (let c = 0; c < currentPiece.shape[r].length; c++) {
+                    if (currentPiece.shape[r][c]) {
+                        board[currentY + r][currentX + c] = currentPiece.color;
+                    }
+                }
+            }
+        }
+
+        function rotate() {
+            const rotated = [];
+            const n = currentPiece.shape.length;
+            const m = currentPiece.shape[0].length;
+            
+            for (let i = 0; i < m; i++) {
+                rotated[i] = [];
+                for (let j = 0; j < n; j++) {
+                    rotated[i][j] = currentPiece.shape[n - 1 - j][i];
+                }
+            }
+            
+            const previousShape = currentPiece.shape;
+            currentPiece.shape = rotated;
+            
+            if (collision()) {
+                currentPiece.shape = previousShape;
+            }
+        }
+
+        function move(dir) {
+            currentX += dir;
+            if (collision()) {
+                currentX -= dir;
+            }
+        }
+
+        function drop() {
+            if (gameOver) return;
+            
+            currentY++;
+            if (collision()) {
+                currentY--;
+                merge();
+                clearLines();
+                spawnPiece();
+            }
+            draw();
+        }
+
+        function hardDrop() {
+            let dropDistance = 0;
+            while (!collision()) {
+                currentY++;
+                dropDistance++;
+            }
+            currentY--;
+            score += dropDistance * 2;
+            updateStats();
+            drop();
+        }
+
+        function clearLines() {
+            let linesCleared = 0;
+            
+            for (let r = ROWS - 1; r >= 0; r--) {
+                let isFullLine = true;
+                for (let c = 0; c < COLS; c++) {
+                    if (!board[r][c]) {
+                        isFullLine = false;
+                        break;
+                    }
+                }
+                
+                if (isFullLine) {
+                    board.splice(r, 1);
+                    board.unshift(new Array(COLS).fill(0));
+                    linesCleared++;
+                    r++;
+                }
+            }
+            
+            if (linesCleared > 0) {
+                const points = [0, 100, 300, 500, 800];
+                score += points[linesCleared] * level;
+                lines += linesCleared;
+                
+                if (lines >= level * 10) {
+                    level++;
+                    dropSpeed = Math.max(50, 500 - (level - 1) * 50);
+                    clearInterval(dropInterval);
+                    dropInterval = setInterval(drop, dropSpeed);
+                }
+                
+                updateStats();
+            }
+        }
+
+        function updateStats() {
+            scoreElement.textContent = score;
+            scoreElement.classList.add('score-update');
+            setTimeout(() => scoreElement.classList.remove('score-update'), 300);
+            
+            levelElement.textContent = level;
+            linesElement.textContent = lines;
+        }
+
+        function restartGame() {
+            gameOverElement.style.display = 'none';
+            init();
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (gameOver && e.key !== 'Enter') return;
+            
+            switch(e.key) {
+                case 'ArrowLeft':
+                    move(-1);
+                    draw();
+                    break;
+                case 'ArrowRight':
+                    move(1);
+                    draw();
+                    break;
+                case 'ArrowDown':
+                    drop();
+                    break;
+                case 'ArrowUp':
+                    rotate();
+                    draw();
+                    break;
+                case ' ':
+                    e.preventDefault();
+                    hardDrop();
+                    break;
+                case 'Enter':
+                    if (gameOver) restartGame();
+                    break;
+            }
+        });
+
+        init();
+    </script>
+</body>
+</html>
