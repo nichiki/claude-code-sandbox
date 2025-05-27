@@ -1,48 +1,48 @@
 # claude-code-sandbox
 
-A sandbox repository for testing and experimenting with Claude Code integration.
+Claude Code統合のテストと実験のためのサンドボックスリポジトリです。
 
-## Overview
+## 概要
 
-This repository serves as a testing ground for Claude Code capabilities and GitHub integration workflows.
+このリポジトリは、Claude Codeの機能とGitHub統合ワークフローのテスト環境として機能します。
 
-## Features
+## 機能
 
-- Automated issue and pull request handling with Claude Code
-- Code review and implementation assistance
-- Test environment for new Claude Code features
+- Claude Codeによる自動化されたイシューとプルリクエストの処理
+- コードレビューと実装の支援
+- 新しいClaude Code機能のテスト環境
 
-## Getting Started
+## はじめに
 
-1. Clone the repository:
+1. リポジトリをクローンする：
    ```bash
    git clone https://github.com/nichiki/claude-code-sandbox.git
    cd claude-code-sandbox
    ```
 
-2. Create an issue or pull request and mention `@claude` to trigger Claude Code assistance.
+2. イシューまたはプルリクエストを作成し、`@claude`をメンションしてClaude Codeの支援を開始します。
 
-## Usage
+## 使用方法
 
-To interact with Claude Code in this repository:
+このリポジトリでClaude Codeと対話するには：
 
-- **For issues**: Create a new issue and include `@claude` followed by your request
-- **For pull requests**: Mention `@claude` in a PR comment with your request
+- **イシューの場合**：新しいイシューを作成し、`@claude`に続けてリクエストを記載
+- **プルリクエストの場合**：PRコメントで`@claude`をメンションしてリクエストを記載
 
-Claude Code can help with:
-- Code reviews
-- Implementation of features
-- Bug fixes
-- Documentation updates
-- General programming questions
+Claude Codeは以下の作業を支援できます：
+- コードレビュー
+- 機能の実装
+- バグ修正
+- ドキュメントの更新
+- 一般的なプログラミングに関する質問
 
-## Contributing
+## コントリビューション
 
-Contributions are welcome! Feel free to:
-- Open issues for bugs or feature requests
-- Submit pull requests with improvements
-- Test Claude Code capabilities
+コントリビューションは歓迎です！以下のことができます：
+- バグや機能リクエストのためのイシューを開く
+- 改善を含むプルリクエストを提出する
+- Claude Codeの機能をテストする
 
-## License
+## ライセンス
 
-This project is open source and available under the [MIT License](LICENSE).
+このプロジェクトはオープンソースで、[MITライセンス](LICENSE)の下で利用可能です。
