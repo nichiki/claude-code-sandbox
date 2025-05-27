@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>テトリス</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #222;
+            font-family: 'Courier New', monospace;
+            color: white;
+        }
+        
+        .game-container {
+            display: flex;
+            gap: 30px;
+            align-items: flex-start;
+        }
+        
+        #game-board {
+            border: 2px solid #666;
+            background-color: #111;
+        }
+        
+        .info-panel {
+            min-width: 200px;
+        }
+        
+        .info-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #333;
+            border-radius: 5px;
+        }
+        
+        .info-section h3 {
+            margin: 0 0 10px 0;
+            font-size: 18px;
+            color: #0ff;
+        }
+        
+        .info-section p {
+            margin: 5px 0;
+            font-size: 16px;
+        }
+        
+        #next-piece {
+            border: 2px solid #666;
+            background-color: #111;
+            margin-top: 10px;
+        }
+        
+        .controls {
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        
+        .controls kbd {
+            background-color: #444;
+            padding: 2px 6px;
+            border-radius: 3px;
+            border: 1px solid #666;
+        }
+        
+        #game-over {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.9);
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            display: none;
+        }
+        
+        #game-over h2 {
+            color: #ff0;
+            margin-bottom: 20px;
+        }
+        
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #0ff;
+            color: #000;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        button:hover {
+            background-color: #0aa;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <canvas id="game-board"></canvas>
+        
+        <div class="info-panel">
+            <div class="info-section">
+                <h3>スコア</h3>
+                <p id="score">0</p>
+            </div>
+            
+            <div class="info-section">
+                <h3>レベル</h3>
+                <p id="level">1</p>
+            </div>
+            
+            <div class="info-section">
+                <h3>ライン</h3>
+                <p id="lines">0</p>
+            </div>
+            
+            <div class="info-section">
+                <h3>次のピース</h3>
+                <canvas id="next-piece"></canvas>
+            </div>
+            
+            <div class="info-section controls">
+                <h3>操作方法</h3>
+                <p><kbd>←</kbd><kbd>→</kbd> 移動</p>
+                <p><kbd>↑</kbd> 回転</p>
+                <p><kbd>↓</kbd> 落下速度UP</p>
+                <p><kbd>Space</kbd> 一気に落下</p>
+                <p><kbd>P</kbd> 一時停止</p>
+            </div>
+        </div>
+    </div>
+    
+    <div id="game-over">
+        <h2>ゲームオーバー</h2>
+        <p>最終スコア: <span id="final-score">0</span></p>
+        <button onclick="resetGame()">もう一度プレイ</button>
+    </div>
+    
+    <script src="tetris.js"></script>
+</body>
+</html>
