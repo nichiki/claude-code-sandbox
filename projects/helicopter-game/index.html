@@ -81,7 +81,7 @@
     <div id="gameContainer">
         <div id="instructions">スペースキーまたはクリックで上昇！</div>
         <canvas id="gameCanvas" width="800" height="400"></canvas>
-        <div id="score">スコア: 0</div>
+        <div id="score">スコア: 0 | レベル: 1</div>
     </div>
     
     <div id="gameOver">
@@ -101,8 +101,8 @@
             width: 40,
             height: 20,
             velocity: 0,
-            thrust: -0.5,
-            gravity: 0.3
+            thrust: -0.8,  // より強い推力で即座に反応
+            gravity: 0.4   // 重力も調整してバランスを取る
         };
         
         let obstacles = [];
@@ -110,9 +110,18 @@
         let gameRunning = true;
         let frameCount = 0;
         
+        // 難易度設定
+        let difficulty = {
+            gap: 150,           // 初期ギャップ（広め）
+            minGap: 100,        // 最小ギャップ
+            obstacleSpeed: 2,   // 初期速度（遅め）
+            maxSpeed: 5,        // 最大速度
+            spawnInterval: 120  // 障害物生成間隔（広め）
+        };
+        
         // 障害物の生成
         function createObstacle() {
-            const gap = 120;
+            const gap = difficulty.gap;
             const minHeight = 50;
             const maxHeight = canvas.height - gap - minHeight;
             const topHeight = Math.random() * (maxHeight - minHeight) + minHeight;
@@ -199,18 +208,28 @@
             if (!gameRunning) return;
             
             // ヘリコプターの物理演算
+            if (isThrusting) {
+                helicopter.velocity += helicopter.thrust;
+            }
             helicopter.velocity += helicopter.gravity;
             helicopter.y += helicopter.velocity;
             
+            // 速度制限
+            helicopter.velocity = Math.max(-8, Math.min(8, helicopter.velocity));
+            
             // 障害物の移動とスコア更新
             obstacles = obstacles.filter(obstacle => {
-                obstacle.x -= 3;
+                obstacle.x -= difficulty.obstacleSpeed;
                 
                 // スコア加算
                 if (!obstacle.passed && obstacle.x + obstacle.width < helicopter.x) {
                     obstacle.passed = true;
                     score++;
-                    document.getElementById('score').textContent = `スコア: ${score}`;
+                    const level = Math.floor(score / 5) + 1;
+                    document.getElementById('score').textContent = `スコア: ${score} | レベル: ${level}`;
+                    
+                    // 難易度上昇
+                    updateDifficulty();
                 }
                 
                 return obstacle.x + obstacle.width > 0;
@@ -218,13 +237,30 @@
             
             // 新しい障害物の生成
             frameCount++;
-            if (frameCount % 100 === 0) {
+            if (frameCount % difficulty.spawnInterval === 0) {
                 createObstacle();
             }
             
             // 衝突チェック
             if (checkCollision()) {
                 gameOver();
+            }
+        }
+        
+        // 難易度更新
+        function updateDifficulty() {
+            // 5点ごとに難易度上昇
+            if (score % 5 === 0) {
+                // ギャップを狭める
+                difficulty.gap = Math.max(difficulty.minGap, difficulty.gap - 5);
+                
+                // 速度を上げる
+                difficulty.obstacleSpeed = Math.min(difficulty.maxSpeed, difficulty.obstacleSpeed + 0.2);
+                
+                // 10点ごとに生成間隔も短くする
+                if (score % 10 === 0 && difficulty.spawnInterval > 80) {
+                    difficulty.spawnInterval -= 10;
+                }
             }
         }
         
@@ -260,7 +296,13 @@
             score = 0;
             frameCount = 0;
             gameRunning = true;
-            document.getElementById('score').textContent = 'スコア: 0';
+            
+            // 難易度リセット
+            difficulty.gap = 150;
+            difficulty.obstacleSpeed = 2;
+            difficulty.spawnInterval = 120;
+            
+            document.getElementById('score').textContent = 'スコア: 0 | レベル: 1';
             document.getElementById('gameOver').style.display = 'none';
         }
         
@@ -302,13 +344,6 @@
             isThrusting = false;
             e.preventDefault();
         });
-        
-        // 推力の適用
-        setInterval(() => {
-            if (isThrusting && gameRunning) {
-                helicopter.velocity += helicopter.thrust;
-            }
-        }, 16);
         
         // 初期障害物の生成
         createObstacle();
