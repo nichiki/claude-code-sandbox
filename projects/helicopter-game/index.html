@@ -49,6 +49,7 @@
             text-shadow: 4px 4px 8px rgba(0, 0, 0, 0.5);
             display: none;
             z-index: 10;
+            pointer-events: none;
             animation: countdownPulse 1s ease-in-out;
         }
         
@@ -112,6 +113,59 @@
             font-size: 18px;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
         }
+        
+        #startScreen {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.9), rgba(30, 30, 30, 0.9));
+            color: white;
+            padding: 40px 60px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            z-index: 20;
+        }
+        
+        #startScreen h1 {
+            margin: 0 0 20px 0;
+            font-size: 42px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        #startScreen p {
+            margin: 20px 0;
+            font-size: 20px;
+            color: #ddd;
+        }
+        
+        #startScreen button {
+            padding: 15px 40px;
+            font-size: 24px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 20px;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            transition: all 0.3s ease;
+        }
+        
+        #startScreen button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+        
+        #startScreen .hint {
+            font-size: 16px;
+            color: #aaa;
+            margin-top: 15px;
+        }
     </style>
 </head>
 <body>
@@ -130,6 +184,13 @@
     
     <div id="countdown"></div>
     
+    <div id="startScreen">
+        <h1>ヘリコプターゲーム</h1>
+        <p>障害物を避けながら、できるだけ遠くまで飛んでください！</p>
+        <button onclick="startGame()">ゲーム開始</button>
+        <p class="hint">スペースキーでも開始できます</p>
+    </div>
+    
     <script>
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
@@ -141,13 +202,13 @@
             width: 40,
             height: 20,
             velocity: 0,
-            thrust: -0.8,  // より穏やかな推力
-            gravity: 0.35  // より穏やかな重力
+            thrust: -0.6,  // さらに穏やかな推力
+            gravity: 0.25  // さらに穏やかな重力
         };
         
         let obstacles = [];
         let score = 0;
-        let gameRunning = true;
+        let gameRunning = false;
         let frameCount = 0;
         let countdownNumber = 0;
         let countdownTimer = null;
@@ -182,10 +243,20 @@
             ctx.save();
             ctx.translate(helicopter.x, helicopter.y);
             
-            // 影
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
-            ctx.ellipse(0, 15, 25, 8, 0, 0, Math.PI * 2);
-            ctx.fill();
+            // スキッド（着陸脚）
+            ctx.strokeStyle = '#2c3e50';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(-15, 10);
+            ctx.lineTo(-15, 13);
+            ctx.lineTo(-10, 13);
+            ctx.stroke();
+            
+            ctx.beginPath();
+            ctx.moveTo(5, 10);
+            ctx.lineTo(5, 13);
+            ctx.lineTo(10, 13);
+            ctx.stroke();
             
             // 本体
             ctx.fillStyle = '#e74c3c';
@@ -319,8 +390,8 @@
             helicopter.velocity += helicopter.gravity;
             helicopter.y += helicopter.velocity;
             
-            // 速度制限（より穏やかに）
-            helicopter.velocity = Math.max(-8, Math.min(8, helicopter.velocity));
+            // 速度制限（さらに穏やかに）
+            helicopter.velocity = Math.max(-6, Math.min(6, helicopter.velocity));
             
             // 障害物の移動とスコア更新
             obstacles = obstacles.filter(obstacle => {
@@ -373,28 +444,33 @@
         function drawBackground() {
             // 雲の描画
             ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
-            const cloudOffset = (frameCount * 0.5) % canvas.width;
+            const cloudOffset = (frameCount * 0.5) % (canvas.width * 2);
             
-            // 雲1
-            ctx.beginPath();
-            ctx.arc(100 - cloudOffset, 80, 25, 0, Math.PI * 2);
-            ctx.arc(130 - cloudOffset, 80, 30, 0, Math.PI * 2);
-            ctx.arc(160 - cloudOffset, 80, 25, 0, Math.PI * 2);
-            ctx.fill();
-            
-            // 雲2
-            ctx.beginPath();
-            ctx.arc(400 - cloudOffset, 120, 20, 0, Math.PI * 2);
-            ctx.arc(425 - cloudOffset, 120, 25, 0, Math.PI * 2);
-            ctx.arc(450 - cloudOffset, 120, 20, 0, Math.PI * 2);
-            ctx.fill();
-            
-            // 雲3（折り返し）
-            ctx.beginPath();
-            ctx.arc(600 - cloudOffset + canvas.width, 60, 22, 0, Math.PI * 2);
-            ctx.arc(625 - cloudOffset + canvas.width, 60, 28, 0, Math.PI * 2);
-            ctx.arc(650 - cloudOffset + canvas.width, 60, 22, 0, Math.PI * 2);
-            ctx.fill();
+            // 雲を2セット描画してシームレスに
+            for (let i = 0; i < 2; i++) {
+                const baseOffset = i * canvas.width;
+                
+                // 雲1
+                ctx.beginPath();
+                ctx.arc(100 + baseOffset - cloudOffset, 80, 25, 0, Math.PI * 2);
+                ctx.arc(130 + baseOffset - cloudOffset, 80, 30, 0, Math.PI * 2);
+                ctx.arc(160 + baseOffset - cloudOffset, 80, 25, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // 雲2
+                ctx.beginPath();
+                ctx.arc(400 + baseOffset - cloudOffset, 120, 20, 0, Math.PI * 2);
+                ctx.arc(425 + baseOffset - cloudOffset, 120, 25, 0, Math.PI * 2);
+                ctx.arc(450 + baseOffset - cloudOffset, 120, 20, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // 雲3
+                ctx.beginPath();
+                ctx.arc(600 + baseOffset - cloudOffset, 60, 22, 0, Math.PI * 2);
+                ctx.arc(625 + baseOffset - cloudOffset, 60, 28, 0, Math.PI * 2);
+                ctx.arc(650 + baseOffset - cloudOffset, 60, 22, 0, Math.PI * 2);
+                ctx.fill();
+            }
         }
         
         // 描画
@@ -407,18 +483,7 @@
             drawObstacles();
             drawHelicopter();
             
-            // カウントダウンを描画
-            if (countdownNumber > 0) {
-                ctx.save();
-                ctx.font = 'bold 120px Arial';
-                ctx.fillStyle = '#fff';
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
-                ctx.shadowBlur = 10;
-                ctx.fillText(countdownNumber, canvas.width / 2, canvas.height / 2);
-                ctx.restore();
-            }
+            // カウントダウンはHTMLで表示するので、ここでは描画しない
         }
         
         // ゲームループ
@@ -526,10 +591,21 @@
             e.preventDefault();
         });
         
-        // ゲーム開始時にカウントダウンから始める
-        startCountdown();
+        // スタート画面用の関数
+        function startGame() {
+            document.getElementById('startScreen').style.display = 'none';
+            resetGame();
+        }
         
-        // ゲームループ開始
+        // スペースキーでゲーム開始
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space' && document.getElementById('startScreen').style.display !== 'none') {
+                e.preventDefault();
+                startGame();
+            }
+        });
+        
+        // ゲームループ開始（まだゲームは始まらない）
         gameLoop();
     </script>
 </body>
