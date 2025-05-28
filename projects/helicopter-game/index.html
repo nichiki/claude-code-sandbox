@@ -101,8 +101,8 @@
             width: 40,
             height: 20,
             velocity: 0,
-            thrust: -0.8,  // より強い推力で即座に反応
-            gravity: 0.4   // 重力も調整してバランスを取る
+            thrust: -1.2,  // より強い推力で即座に反応
+            gravity: 0.5   // 重力も調整してバランスを取る
         };
         
         let obstacles = [];
@@ -112,7 +112,7 @@
         
         // 難易度設定
         let difficulty = {
-            gap: 150,           // 初期ギャップ（広め）
+            gap: 180,           // 初期ギャップ（より広め）
             minGap: 100,        // 最小ギャップ
             obstacleSpeed: 2,   // 初期速度（遅め）
             maxSpeed: 5,        // 最大速度
@@ -214,8 +214,8 @@
             helicopter.velocity += helicopter.gravity;
             helicopter.y += helicopter.velocity;
             
-            // 速度制限
-            helicopter.velocity = Math.max(-8, Math.min(8, helicopter.velocity));
+            // 速度制限（よりレスポンシブに）
+            helicopter.velocity = Math.max(-10, Math.min(10, helicopter.velocity));
             
             // 障害物の移動とスコア更新
             obstacles = obstacles.filter(obstacle => {
@@ -251,11 +251,11 @@
         function updateDifficulty() {
             // 5点ごとに難易度上昇
             if (score % 5 === 0) {
-                // ギャップを狭める
-                difficulty.gap = Math.max(difficulty.minGap, difficulty.gap - 5);
+                // ギャップを狭める（より緩やかに）
+                difficulty.gap = Math.max(difficulty.minGap, difficulty.gap - 3);
                 
-                // 速度を上げる
-                difficulty.obstacleSpeed = Math.min(difficulty.maxSpeed, difficulty.obstacleSpeed + 0.2);
+                // 速度を上げる（より緩やかに）
+                difficulty.obstacleSpeed = Math.min(difficulty.maxSpeed, difficulty.obstacleSpeed + 0.15);
                 
                 // 10点ごとに生成間隔も短くする
                 if (score % 10 === 0 && difficulty.spawnInterval > 80) {
@@ -296,9 +296,10 @@
             score = 0;
             frameCount = 0;
             gameRunning = true;
+            isThrusting = false;  // 入力状態をリセット
             
             // 難易度リセット
-            difficulty.gap = 150;
+            difficulty.gap = 180;  // 初期ギャップを広めに
             difficulty.obstacleSpeed = 2;
             difficulty.spawnInterval = 120;
             
