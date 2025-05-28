@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Claude Code Sandbox Projects</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f8f9fa;
+            color: #333;
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 3rem 1rem;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.5px;
+        }
+
+        header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        main {
+            flex: 1;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 3rem 1rem;
+            width: 100%;
+        }
+
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .project-card {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.07);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .project-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .project-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 12px rgba(0,0,0,0.1);
+        }
+
+        .project-card h2 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: #2d3748;
+        }
+
+        .project-card .status {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            margin-bottom: 1rem;
+        }
+
+        .status.complete {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+
+        .status.developing {
+            background: #fed7d7;
+            color: #742a2a;
+        }
+
+        .project-card p {
+            color: #4a5568;
+            margin-bottom: 1.5rem;
+            line-height: 1.7;
+        }
+
+        .project-card .tech-stack {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .tech-stack span {
+            background: #e2e8f0;
+            color: #4a5568;
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+        }
+
+        .project-card a {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: opacity 0.2s ease;
+        }
+
+        .project-card a:hover {
+            opacity: 0.9;
+        }
+
+        footer {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        footer a {
+            color: #9f7aea;
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2rem;
+            }
+
+            .projects-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Claude Code Sandbox</h1>
+        <p>様々なアイデアを素早く形にする実験場</p>
+    </header>
+
+    <main>
+        <div class="projects-grid">
+            <div class="project-card">
+                <h2>🚁 Helicopter Game</h2>
+                <span class="status complete">完成</span>
+                <p>クラシックなヘリコプターゲームのブラウザ実装。ワンボタンで操作できるシンプルながら中毒性のあるゲームです。</p>
+                <div class="tech-stack">
+                    <span>HTML5 Canvas</span>
+                    <span>JavaScript</span>
+                    <span>CSS3</span>
+                </div>
+                <a href="./helicopter-game/">プレイする →</a>
+            </div>
+
+            <div class="project-card">
+                <h2>🎮 Modern Tetris</h2>
+                <span class="status complete">完成</span>
+                <p>美しいグラデーションとグラスモーフィズムを採用したモダンなテトリス。ネオンカラーのブロックで視覚的にも楽しめます。</p>
+                <div class="tech-stack">
+                    <span>HTML5</span>
+                    <span>Canvas API</span>
+                    <span>CSS3</span>
+                    <span>JavaScript</span>
+                </div>
+                <a href="./modern-tetris/">プレイする →</a>
+            </div>
+
+            <div class="project-card">
+                <h2>📖 Ultra Fast Reader</h2>
+                <span class="status complete">完成</span>
+                <p>ミニマルなデザインの高速読書アプリ。集中力を高めて効率的に文章を読むための環境を提供します。</p>
+                <div class="tech-stack">
+                    <span>HTML5</span>
+                    <span>CSS3</span>
+                    <span>JavaScript</span>
+                    <span>Responsive</span>
+                </div>
+                <a href="./ultra-fast-reader/">アプリを開く →</a>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>© 2024 Claude Code Sandbox | <a href="https://github.com/nichiki/claude-code-sandbox">GitHub Repository</a></p>
+    </footer>
+</body>
+</html>
