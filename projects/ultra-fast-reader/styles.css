@@ -33,13 +33,93 @@ body {
     transition: background-color 0.3s ease, color 0.3s ease;
 }
 
+.app-container {
+    display: flex;
+    min-height: 100vh;
+}
+
+.sidebar {
+    width: 280px;
+    background-color: var(--bg-color);
+    border-right: 1px solid var(--quote-border);
+    padding: 2rem 0;
+    position: fixed;
+    height: 100vh;
+    overflow-y: auto;
+    transition: transform 0.3s ease;
+}
+
+.sidebar.collapsed {
+    transform: translateX(-280px);
+}
+
+.sidebar-header {
+    padding: 0 1.5rem 1.5rem;
+    border-bottom: 1px solid var(--quote-border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.sidebar-header h2 {
+    font-size: 1.2rem;
+    font-weight: 300;
+    letter-spacing: 0.05em;
+}
+
+#sidebar-toggle {
+    background: none;
+    border: none;
+    color: var(--accent-color);
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 0.5rem;
+    display: none;
+}
+
+.article-list {
+    padding: 1rem 0;
+}
+
+.article-item {
+    display: block;
+    padding: 1rem 1.5rem;
+    text-decoration: none;
+    color: var(--text-color);
+    transition: background-color 0.2s ease;
+    cursor: pointer;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+}
+
+.article-item:hover,
+.article-item.active {
+    background-color: var(--quote-border);
+}
+
+.article-item h3 {
+    font-size: 1rem;
+    font-weight: 400;
+    margin-bottom: 0.3rem;
+}
+
+.article-item .date {
+    font-size: 0.8rem;
+    color: var(--accent-color);
+}
+
 .container {
+    flex: 1;
     max-width: var(--max-width);
     margin: 0 auto;
     padding: 2rem 1.5rem;
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+    margin-left: 280px;
+    width: calc(100% - 280px);
 }
 
 header {
@@ -80,6 +160,10 @@ h1 {
 .controls button:hover {
     background-color: var(--accent-color);
     color: var(--bg-color);
+}
+
+.mobile-only {
+    display: none;
 }
 
 main {
@@ -127,8 +211,28 @@ footer {
         --font-size: 16px;
     }
     
+    .sidebar {
+        position: fixed;
+        z-index: 1000;
+        transform: translateX(-280px);
+    }
+    
+    .sidebar.active {
+        transform: translateX(0);
+    }
+    
+    #sidebar-toggle {
+        display: block;
+    }
+    
+    .mobile-only {
+        display: flex;
+    }
+    
     .container {
         padding: 1.5rem 1rem;
+        margin-left: 0;
+        width: 100%;
     }
     
     header {
@@ -150,6 +254,34 @@ footer {
 
 .font-small {
     --font-size: 16px;
+}
+
+.article-meta {
+    margin-bottom: 2rem;
+    color: var(--accent-color);
+    font-size: 0.9rem;
+}
+
+.article-meta .author {
+    margin-left: 0.5rem;
+}
+
+/* オーバーレイ */
+.sidebar-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+}
+
+@media (max-width: 768px) {
+    .sidebar.active + .sidebar-overlay {
+        display: block;
+    }
 }
 
 ::selection {

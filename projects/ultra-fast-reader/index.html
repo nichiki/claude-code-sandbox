@@ -7,43 +7,60 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>読む</h1>
-            <div class="controls">
-                <button id="theme-toggle" aria-label="テーマ切替">◐</button>
-                <button id="font-size" aria-label="文字サイズ">A</button>
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2>記事一覧</h2>
+                <button id="sidebar-toggle" aria-label="サイドバー切替">☰</button>
             </div>
-        </header>
+            <nav class="article-list" id="article-list">
+                <!-- Articles will be loaded here -->
+            </nav>
+        </aside>
         
-        <main>
-            <article class="content">
-                <h2>静寂の中で</h2>
-                <p>朝露が葉を濡らす頃、世界はまだ眠りについている。この静けさの中にこそ、本当の美しさが宿る。</p>
-                
-                <p>文字は単なる記号ではない。それは思想を運ぶ器であり、感情を伝える橋である。一つ一つの言葉が、読む人の心に小さな波紋を広げていく。</p>
-                
-                <p>ミニマリズムとは、余分なものを削ぎ落とすことで本質を浮かび上がらせる芸術だ。このページもまた、読むという行為の純粋さを追求している。</p>
-                
-                <blockquote>
-                    「完璧とは、付け加えるものがなくなったときではなく、<br>
-                    削るものがなくなったときに達成される」<br>
-                    <cite>— アントワーヌ・ド・サン＝テグジュペリ</cite>
-                </blockquote>
-                
-                <p>デジタルの時代において、私たちは情報の洪水に晒されている。しかし、本当に大切なのは量ではなく質である。一つの文章をじっくりと味わう時間、それこそが贅沢なのかもしれない。</p>
-                
-                <p>このシンプルなインターフェースは、読者とテキストの間にある障壁を最小限にすることを目指している。装飾は控えめに、しかし読みやすさは最大限に。</p>
-                
-                <p>夜が明け、新しい一日が始まる。この瞬間も、どこかで誰かが文字を追い、新しい世界と出会っている。読むという行為は、時空を超えた対話なのだ。</p>
-            </article>
-        </main>
+        <div class="sidebar-overlay" id="sidebar-overlay"></div>
         
-        <footer>
-            <p>© 2025 Minimal Reader</p>
-        </footer>
+        <div class="container">
+            <header>
+                <h1>読む</h1>
+                <div class="controls">
+                    <button id="mobile-sidebar-toggle" class="mobile-only" aria-label="メニュー">☰</button>
+                    <button id="theme-toggle" aria-label="テーマ切替">◐</button>
+                    <button id="font-size" aria-label="文字サイズ">A</button>
+                </div>
+            </header>
+            
+            <main>
+                <article class="content" id="article-content">
+                    <h2>静寂の中で</h2>
+                    <p>朝露が葉を濡らす頃、世界はまだ眠りについている。この静けさの中にこそ、本当の美しさが宿る。</p>
+                    
+                    <p>文字は単なる記号ではない。それは思想を運ぶ器であり、感情を伝える橋である。一つ一つの言葉が、読む人の心に小さな波紋を広げていく。</p>
+                    
+                    <p>ミニマリズムとは、余分なものを削ぎ落とすことで本質を浮かび上がらせる芸術だ。このページもまた、読むという行為の純粋さを追求している。</p>
+                    
+                    <blockquote>
+                        「完璧とは、付け加えるものがなくなったときではなく、<br>
+                        削るものがなくなったときに達成される」<br>
+                        <cite>— アントワーヌ・ド・サン＝テグジュペリ</cite>
+                    </blockquote>
+                    
+                    <p>デジタルの時代において、私たちは情報の洪水に晒されている。しかし、本当に大切なのは量ではなく質である。一つの文章をじっくりと味わう時間、それこそが贅沢なのかもしれない。</p>
+                    
+                    <p>このシンプルなインターフェースは、読者とテキストの間にある障壁を最小限にすることを目指している。装飾は控えめに、しかし読みやすさは最大限に。</p>
+                    
+                    <p>夜が明け、新しい一日が始まる。この瞬間も、どこかで誰かが文字を追い、新しい世界と出会っている。読むという行為は、時空を超えた対話なのだ。</p>
+                </article>
+            </main>
+            
+            <footer>
+                <p>© 2025 Minimal Reader</p>
+            </footer>
+        </div>
     </div>
     
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
