@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ヘリコプターゲーム</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #222;
+            font-family: Arial, sans-serif;
+        }
+        
+        #gameContainer {
+            text-align: center;
+        }
+        
+        canvas {
+            border: 2px solid #444;
+            background: linear-gradient(to bottom, #87CEEB 0%, #98D8F4 50%, #B0E0F6 100%);
+            display: block;
+            margin: 0 auto;
+        }
+        
+        #score {
+            color: white;
+            font-size: 24px;
+            margin-top: 10px;
+        }
+        
+        #gameOver {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 20px 40px;
+            border-radius: 10px;
+            display: none;
+        }
+        
+        #gameOver h2 {
+            margin: 0 0 10px 0;
+            font-size: 32px;
+        }
+        
+        #gameOver p {
+            margin: 10px 0;
+            font-size: 20px;
+        }
+        
+        #gameOver button {
+            padding: 10px 30px;
+            font-size: 18px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        
+        #gameOver button:hover {
+            background: #45a049;
+        }
+        
+        #instructions {
+            color: white;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div id="gameContainer">
+        <div id="instructions">スペースキーまたはクリックで上昇！</div>
+        <canvas id="gameCanvas" width="800" height="400"></canvas>
+        <div id="score">スコア: 0</div>
+    </div>
+    
+    <div id="gameOver">
+        <h2>ゲームオーバー！</h2>
+        <p>最終スコア: <span id="finalScore">0</span></p>
+        <button onclick="resetGame()">もう一度プレイ</button>
+    </div>
+    
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        // ゲーム変数
+        let helicopter = {
+            x: 100,
+            y: canvas.height / 2,
+            width: 40,
+            height: 20,
+            velocity: 0,
+            thrust: -0.5,
+            gravity: 0.3
+        };
+        
+        let obstacles = [];
+        let score = 0;
+        let gameRunning = true;
+        let frameCount = 0;
+        
+        // 障害物の生成
+        function createObstacle() {
+            const gap = 120;
+            const minHeight = 50;
+            const maxHeight = canvas.height - gap - minHeight;
+            const topHeight = Math.random() * (maxHeight - minHeight) + minHeight;
+            
+            obstacles.push({
+                x: canvas.width,
+                topHeight: topHeight,
+                bottomY: topHeight + gap,
+                width: 50,
+                passed: false
+            });
+        }
+        
+        // ヘリコプターの描画
+        function drawHelicopter() {
+            ctx.save();
+            ctx.translate(helicopter.x, helicopter.y);
+            
+            // 本体
+            ctx.fillStyle = '#ff6b6b';
+            ctx.fillRect(-20, -10, 40, 20);
+            
+            // コックピット
+            ctx.fillStyle = '#4ecdc4';
+            ctx.fillRect(5, -8, 15, 12);
+            
+            // ローター
+            ctx.strokeStyle = '#333';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(-5, -10);
+            ctx.lineTo(-5, -15);
+            ctx.moveTo(-15, -15);
+            ctx.lineTo(5, -15);
+            ctx.stroke();
+            
+            // テールローター
+            ctx.beginPath();
+            ctx.moveTo(-20, 0);
+            ctx.lineTo(-25, 0);
+            ctx.moveTo(-25, -5);
+            ctx.lineTo(-25, 5);
+            ctx.stroke();
+            
+            ctx.restore();
+        }
+        
+        // 障害物の描画
+        function drawObstacles() {
+            ctx.fillStyle = '#2ecc71';
+            
+            obstacles.forEach(obstacle => {
+                // 上の障害物
+                ctx.fillRect(obstacle.x, 0, obstacle.width, obstacle.topHeight);
+                
+                // 下の障害物
+                ctx.fillRect(obstacle.x, obstacle.bottomY, obstacle.width, canvas.height - obstacle.bottomY);
+            });
+        }
+        
+        // 衝突検出
+        function checkCollision() {
+            // 地面と天井
+            if (helicopter.y - helicopter.height/2 <= 0 || helicopter.y + helicopter.height/2 >= canvas.height) {
+                return true;
+            }
+            
+            // 障害物
+            for (let obstacle of obstacles) {
+                if (helicopter.x + helicopter.width/2 > obstacle.x && 
+                    helicopter.x - helicopter.width/2 < obstacle.x + obstacle.width) {
+                    if (helicopter.y - helicopter.height/2 < obstacle.topHeight || 
+                        helicopter.y + helicopter.height/2 > obstacle.bottomY) {
+                        return true;
+                    }
+                }
+            }
+            
+            return false;
+        }
+        
+        // ゲーム更新
+        function update() {
+            if (!gameRunning) return;
+            
+            // ヘリコプターの物理演算
+            helicopter.velocity += helicopter.gravity;
+            helicopter.y += helicopter.velocity;
+            
+            // 障害物の移動とスコア更新
+            obstacles = obstacles.filter(obstacle => {
+                obstacle.x -= 3;
+                
+                // スコア加算
+                if (!obstacle.passed && obstacle.x + obstacle.width < helicopter.x) {
+                    obstacle.passed = true;
+                    score++;
+                    document.getElementById('score').textContent = `スコア: ${score}`;
+                }
+                
+                return obstacle.x + obstacle.width > 0;
+            });
+            
+            // 新しい障害物の生成
+            frameCount++;
+            if (frameCount % 100 === 0) {
+                createObstacle();
+            }
+            
+            // 衝突チェック
+            if (checkCollision()) {
+                gameOver();
+            }
+        }
+        
+        // 描画
+        function draw() {
+            // 背景をクリア
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // 要素を描画
+            drawObstacles();
+            drawHelicopter();
+        }
+        
+        // ゲームループ
+        function gameLoop() {
+            update();
+            draw();
+            requestAnimationFrame(gameLoop);
+        }
+        
+        // ゲームオーバー
+        function gameOver() {
+            gameRunning = false;
+            document.getElementById('finalScore').textContent = score;
+            document.getElementById('gameOver').style.display = 'block';
+        }
+        
+        // ゲームリセット
+        function resetGame() {
+            helicopter.y = canvas.height / 2;
+            helicopter.velocity = 0;
+            obstacles = [];
+            score = 0;
+            frameCount = 0;
+            gameRunning = true;
+            document.getElementById('score').textContent = 'スコア: 0';
+            document.getElementById('gameOver').style.display = 'none';
+        }
+        
+        // 入力処理
+        let isThrusting = false;
+        
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space' && gameRunning && !isThrusting) {
+                isThrusting = true;
+                e.preventDefault();
+            }
+        });
+        
+        document.addEventListener('keyup', (e) => {
+            if (e.code === 'Space') {
+                isThrusting = false;
+                e.preventDefault();
+            }
+        });
+        
+        canvas.addEventListener('mousedown', () => {
+            if (gameRunning) {
+                isThrusting = true;
+            }
+        });
+        
+        canvas.addEventListener('mouseup', () => {
+            isThrusting = false;
+        });
+        
+        canvas.addEventListener('touchstart', (e) => {
+            if (gameRunning) {
+                isThrusting = true;
+                e.preventDefault();
+            }
+        });
+        
+        canvas.addEventListener('touchend', (e) => {
+            isThrusting = false;
+            e.preventDefault();
+        });
+        
+        // 推力の適用
+        setInterval(() => {
+            if (isThrusting && gameRunning) {
+                helicopter.velocity += helicopter.thrust;
+            }
+        }, 16);
+        
+        // 初期障害物の生成
+        createObstacle();
+        
+        // ゲーム開始
+        gameLoop();
+    </script>
+</body>
+</html>
