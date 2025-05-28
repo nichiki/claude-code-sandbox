@@ -12,25 +12,50 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            background-color: #222;
-            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
         
         #gameContainer {
             text-align: center;
+            position: relative;
         }
         
         canvas {
-            border: 2px solid #444;
+            border: 3px solid #2c3e50;
+            border-radius: 10px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
             background: linear-gradient(to bottom, #87CEEB 0%, #98D8F4 50%, #B0E0F6 100%);
             display: block;
             margin: 0 auto;
         }
         
         #score {
-            color: white;
-            font-size: 24px;
-            margin-top: 10px;
+            color: #fff;
+            font-size: 28px;
+            margin-top: 15px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            font-weight: bold;
+        }
+        
+        #countdown {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 120px;
+            color: #fff;
+            font-weight: bold;
+            text-shadow: 4px 4px 8px rgba(0, 0, 0, 0.5);
+            display: none;
+            z-index: 10;
+            animation: countdownPulse 1s ease-in-out;
+        }
+        
+        @keyframes countdownPulse {
+            0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+            50% { transform: translate(-50%, -50%) scale(1.2); }
+            100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
         }
         
         #gameOver {
@@ -38,42 +63,54 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background: rgba(0, 0, 0, 0.8);
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.9), rgba(30, 30, 30, 0.9));
             color: white;
-            padding: 20px 40px;
-            border-radius: 10px;
+            padding: 30px 50px;
+            border-radius: 15px;
             display: none;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
         }
         
         #gameOver h2 {
-            margin: 0 0 10px 0;
-            font-size: 32px;
+            margin: 0 0 15px 0;
+            font-size: 36px;
+            color: #ff6b6b;
         }
         
         #gameOver p {
-            margin: 10px 0;
-            font-size: 20px;
+            margin: 15px 0;
+            font-size: 24px;
         }
         
         #gameOver button {
-            padding: 10px 30px;
-            font-size: 18px;
-            background: #4CAF50;
+            padding: 12px 35px;
+            font-size: 20px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
             border: none;
-            border-radius: 5px;
+            border-radius: 8px;
             cursor: pointer;
-            margin-top: 10px;
+            margin-top: 15px;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            transition: all 0.3s ease;
         }
         
         #gameOver button:hover {
-            background: #45a049;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+        
+        #gameOver .hint {
+            font-size: 14px;
+            color: #aaa;
+            margin-top: 10px;
         }
         
         #instructions {
-            color: white;
-            margin-bottom: 10px;
-            font-size: 16px;
+            color: #fff;
+            margin-bottom: 15px;
+            font-size: 18px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
         }
     </style>
 </head>
@@ -88,7 +125,10 @@
         <h2>ゲームオーバー！</h2>
         <p>最終スコア: <span id="finalScore">0</span></p>
         <button onclick="resetGame()">もう一度プレイ</button>
+        <p class="hint">スペースキーでも再開できます</p>
     </div>
+    
+    <div id="countdown"></div>
     
     <script>
         const canvas = document.getElementById('gameCanvas');
@@ -101,21 +141,23 @@
             width: 40,
             height: 20,
             velocity: 0,
-            thrust: -1.2,  // より強い推力で即座に反応
-            gravity: 0.5   // 重力も調整してバランスを取る
+            thrust: -0.8,  // より穏やかな推力
+            gravity: 0.35  // より穏やかな重力
         };
         
         let obstacles = [];
         let score = 0;
         let gameRunning = true;
         let frameCount = 0;
+        let countdownNumber = 0;
+        let countdownTimer = null;
         
         // 難易度設定
         let difficulty = {
             gap: 180,           // 初期ギャップ（より広め）
             minGap: 100,        // 最小ギャップ
-            obstacleSpeed: 2,   // 初期速度（遅め）
-            maxSpeed: 5,        // 最大速度
+            obstacleSpeed: 3,   // 初期速度（少し速めに）
+            maxSpeed: 6,        // 最大速度
             spawnInterval: 120  // 障害物生成間隔（広め）
         };
         
@@ -140,30 +182,74 @@
             ctx.save();
             ctx.translate(helicopter.x, helicopter.y);
             
+            // 影
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+            ctx.ellipse(0, 15, 25, 8, 0, 0, Math.PI * 2);
+            ctx.fill();
+            
             // 本体
+            ctx.fillStyle = '#e74c3c';
+            ctx.beginPath();
+            ctx.moveTo(-20, -10);
+            ctx.lineTo(15, -10);
+            ctx.lineTo(20, -5);
+            ctx.lineTo(20, 5);
+            ctx.lineTo(15, 10);
+            ctx.lineTo(-20, 10);
+            ctx.closePath();
+            ctx.fill();
+            
+            // ハイライト
             ctx.fillStyle = '#ff6b6b';
-            ctx.fillRect(-20, -10, 40, 20);
+            ctx.fillRect(-18, -8, 30, 5);
             
             // コックピット
-            ctx.fillStyle = '#4ecdc4';
-            ctx.fillRect(5, -8, 15, 12);
+            ctx.fillStyle = '#3498db';
+            ctx.beginPath();
+            ctx.moveTo(5, -8);
+            ctx.lineTo(18, -6);
+            ctx.lineTo(18, 6);
+            ctx.lineTo(5, 8);
+            ctx.closePath();
+            ctx.fill();
             
-            // ローター
-            ctx.strokeStyle = '#333';
-            ctx.lineWidth = 2;
+            // コックピットの反射
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+            ctx.fillRect(8, -5, 8, 3);
+            
+            // ローター（回転アニメーション）
+            const rotorAngle = (frameCount * 0.3) % (Math.PI * 2);
+            ctx.strokeStyle = '#2c3e50';
+            ctx.lineWidth = 3;
             ctx.beginPath();
             ctx.moveTo(-5, -10);
             ctx.lineTo(-5, -15);
-            ctx.moveTo(-15, -15);
-            ctx.lineTo(5, -15);
             ctx.stroke();
             
-            // テールローター
+            ctx.save();
+            ctx.translate(-5, -15);
+            ctx.rotate(rotorAngle);
             ctx.beginPath();
             ctx.moveTo(-20, 0);
-            ctx.lineTo(-25, 0);
-            ctx.moveTo(-25, -5);
-            ctx.lineTo(-25, 5);
+            ctx.lineTo(20, 0);
+            ctx.stroke();
+            ctx.restore();
+            
+            // テール
+            ctx.fillStyle = '#34495e';
+            ctx.beginPath();
+            ctx.moveTo(-20, -2);
+            ctx.lineTo(-35, -1);
+            ctx.lineTo(-35, 1);
+            ctx.lineTo(-20, 2);
+            ctx.closePath();
+            ctx.fill();
+            
+            // テールローター
+            ctx.strokeStyle = '#2c3e50';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(-35, 0, 5, 0, Math.PI * 2);
             ctx.stroke();
             
             ctx.restore();
@@ -171,14 +257,33 @@
         
         // 障害物の描画
         function drawObstacles() {
-            ctx.fillStyle = '#2ecc71';
-            
             obstacles.forEach(obstacle => {
+                // グラデーション設定
+                const topGradient = ctx.createLinearGradient(obstacle.x, 0, obstacle.x + obstacle.width, 0);
+                topGradient.addColorStop(0, '#27ae60');
+                topGradient.addColorStop(0.5, '#2ecc71');
+                topGradient.addColorStop(1, '#27ae60');
+                
+                const bottomGradient = ctx.createLinearGradient(obstacle.x, obstacle.bottomY, obstacle.x + obstacle.width, obstacle.bottomY);
+                bottomGradient.addColorStop(0, '#27ae60');
+                bottomGradient.addColorStop(0.5, '#2ecc71');
+                bottomGradient.addColorStop(1, '#27ae60');
+                
                 // 上の障害物
+                ctx.fillStyle = topGradient;
                 ctx.fillRect(obstacle.x, 0, obstacle.width, obstacle.topHeight);
                 
+                // 上の障害物の縁
+                ctx.fillStyle = '#229954';
+                ctx.fillRect(obstacle.x, obstacle.topHeight - 5, obstacle.width, 5);
+                
                 // 下の障害物
+                ctx.fillStyle = bottomGradient;
                 ctx.fillRect(obstacle.x, obstacle.bottomY, obstacle.width, canvas.height - obstacle.bottomY);
+                
+                // 下の障害物の縁
+                ctx.fillStyle = '#229954';
+                ctx.fillRect(obstacle.x, obstacle.bottomY, obstacle.width, 5);
             });
         }
         
@@ -214,8 +319,8 @@
             helicopter.velocity += helicopter.gravity;
             helicopter.y += helicopter.velocity;
             
-            // 速度制限（よりレスポンシブに）
-            helicopter.velocity = Math.max(-10, Math.min(10, helicopter.velocity));
+            // 速度制限（より穏やかに）
+            helicopter.velocity = Math.max(-8, Math.min(8, helicopter.velocity));
             
             // 障害物の移動とスコア更新
             obstacles = obstacles.filter(obstacle => {
@@ -255,7 +360,7 @@
                 difficulty.gap = Math.max(difficulty.minGap, difficulty.gap - 3);
                 
                 // 速度を上げる（より緩やかに）
-                difficulty.obstacleSpeed = Math.min(difficulty.maxSpeed, difficulty.obstacleSpeed + 0.15);
+                difficulty.obstacleSpeed = Math.min(difficulty.maxSpeed, difficulty.obstacleSpeed + 0.2);
                 
                 // 10点ごとに生成間隔も短くする
                 if (score % 10 === 0 && difficulty.spawnInterval > 80) {
@@ -264,14 +369,56 @@
             }
         }
         
+        // 背景の描画
+        function drawBackground() {
+            // 雲の描画
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+            const cloudOffset = (frameCount * 0.5) % canvas.width;
+            
+            // 雲1
+            ctx.beginPath();
+            ctx.arc(100 - cloudOffset, 80, 25, 0, Math.PI * 2);
+            ctx.arc(130 - cloudOffset, 80, 30, 0, Math.PI * 2);
+            ctx.arc(160 - cloudOffset, 80, 25, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // 雲2
+            ctx.beginPath();
+            ctx.arc(400 - cloudOffset, 120, 20, 0, Math.PI * 2);
+            ctx.arc(425 - cloudOffset, 120, 25, 0, Math.PI * 2);
+            ctx.arc(450 - cloudOffset, 120, 20, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // 雲3（折り返し）
+            ctx.beginPath();
+            ctx.arc(600 - cloudOffset + canvas.width, 60, 22, 0, Math.PI * 2);
+            ctx.arc(625 - cloudOffset + canvas.width, 60, 28, 0, Math.PI * 2);
+            ctx.arc(650 - cloudOffset + canvas.width, 60, 22, 0, Math.PI * 2);
+            ctx.fill();
+        }
+        
         // 描画
         function draw() {
             // 背景をクリア
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             
             // 要素を描画
+            drawBackground();
             drawObstacles();
             drawHelicopter();
+            
+            // カウントダウンを描画
+            if (countdownNumber > 0) {
+                ctx.save();
+                ctx.font = 'bold 120px Arial';
+                ctx.fillStyle = '#fff';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+                ctx.shadowBlur = 10;
+                ctx.fillText(countdownNumber, canvas.width / 2, canvas.height / 2);
+                ctx.restore();
+            }
         }
         
         // ゲームループ
@@ -295,25 +442,58 @@
             obstacles = [];
             score = 0;
             frameCount = 0;
-            gameRunning = true;
+            gameRunning = false;  // カウントダウン中は停止
             isThrusting = false;  // 入力状態をリセット
             
             // 難易度リセット
             difficulty.gap = 180;  // 初期ギャップを広めに
-            difficulty.obstacleSpeed = 2;
+            difficulty.obstacleSpeed = 3;
             difficulty.spawnInterval = 120;
             
             document.getElementById('score').textContent = 'スコア: 0 | レベル: 1';
             document.getElementById('gameOver').style.display = 'none';
+            
+            // カウントダウン開始
+            startCountdown();
+        }
+        
+        // カウントダウン機能
+        function startCountdown() {
+            countdownNumber = 3;
+            const countdownElement = document.getElementById('countdown');
+            countdownElement.style.display = 'block';
+            countdownElement.textContent = countdownNumber;
+            
+            countdownTimer = setInterval(() => {
+                countdownNumber--;
+                if (countdownNumber > 0) {
+                    countdownElement.textContent = countdownNumber;
+                    countdownElement.style.animation = 'none';
+                    setTimeout(() => {
+                        countdownElement.style.animation = 'countdownPulse 1s ease-in-out';
+                    }, 10);
+                } else {
+                    countdownElement.style.display = 'none';
+                    clearInterval(countdownTimer);
+                    gameRunning = true;
+                    // 初期障害物の生成
+                    createObstacle();
+                }
+            }, 1000);
         }
         
         // 入力処理
         let isThrusting = false;
         
         document.addEventListener('keydown', (e) => {
-            if (e.code === 'Space' && gameRunning && !isThrusting) {
-                isThrusting = true;
+            if (e.code === 'Space') {
                 e.preventDefault();
+                if (gameRunning && !isThrusting) {
+                    isThrusting = true;
+                } else if (!gameRunning && document.getElementById('gameOver').style.display === 'block') {
+                    // スペースキーでリスタート
+                    resetGame();
+                }
             }
         });
         
@@ -346,10 +526,10 @@
             e.preventDefault();
         });
         
-        // 初期障害物の生成
-        createObstacle();
+        // ゲーム開始時にカウントダウンから始める
+        startCountdown();
         
-        // ゲーム開始
+        // ゲームループ開始
         gameLoop();
     </script>
 </body>
