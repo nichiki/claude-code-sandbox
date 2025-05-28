@@ -3,6 +3,9 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches: [ main ]
+    paths:
+      - 'projects/helicopter-game/**'  # このディレクトリ以下の変更のみ
+      - '.github/workflows/deploy.yml'  # ワークフロー自体の変更も含める
 
 jobs:
   deploy:
@@ -14,4 +17,4 @@ jobs:
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./projects/helicopter-game # ちょっと変更
+          publish_dir: ./projects/helicopter-game
