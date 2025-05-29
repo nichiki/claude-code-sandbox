@@ -16,8 +16,19 @@ document.addEventListener('DOMContentLoaded', () => {
         { file: 'reading-in-digital-age.md', title: 'デジタル時代の読書論', date: '2025-01-05' }
     ];
     
+    // 現在読んでいる記事の情報
+    let currentArticleId = null;
+    
     // コマンドリスト
     const commands = [
+        { 
+            id: 'scroll-to-top', 
+            title: '記事の最初に戻る', 
+            icon: '↑', 
+            subtitle: 'トップに戻る',
+            action: () => scrollToTop(),
+            keywords: ['top', 'scroll', 'トップ', '最初', '上', '戻る']
+        },
         { 
             id: 'theme-light', 
             title: 'テーマ: ライト', 
@@ -76,6 +87,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     let selectedIndex = 0;
     let currentItems = [];
+    let scrollSaveTimer = null;
     
     // テーマ切り替え
     const savedTheme = localStorage.getItem('theme');
@@ -350,11 +362,47 @@ document.addEventListener('DOMContentLoaded', () => {
         return count.toString();
     }
     
+    // スクロール位置の保存（throttled）
+    function saveScrollPosition() {
+        if (!currentArticleId) return;
+        
+        clearTimeout(scrollSaveTimer);
+        scrollSaveTimer = setTimeout(() => {
+            const scrollY = window.scrollY;
+            localStorage.setItem(`scroll_${currentArticleId}`, scrollY.toString());
+        }, 500); // 500ms後に保存
+    }
+    
+    
+    // トップにスクロール
+    function scrollToTop() {
+        window.scrollTo({ 
+            top: 0, 
+            behavior: 'smooth' 
+        });
+        closeCommandPalette();
+    }
+    
+    // スクロールイベントの監視
+    window.addEventListener('scroll', saveScrollPosition);
+    
     // Markdown記事の読み込み
     async function loadArticle(filename) {
         try {
+            // 現在の記事のスクロール位置を最後に保存
+            if (currentArticleId) {
+                const scrollY = window.scrollY;
+                localStorage.setItem(`scroll_${currentArticleId}`, scrollY.toString());
+            }
+            
+            // スクロール保存タイマーをクリア
+            clearTimeout(scrollSaveTimer);
+            
             const response = await fetch(`articles/${filename}`);
             const text = await response.text();
+            
+            // 新しい記事IDを設定（ファイル名から拡張子を除く）
+            const newArticleId = filename.replace('.md', '');
             
             // YAMLフロントマターとコンテンツを分離
             const match = text.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
@@ -381,15 +429,34 @@ document.addEventListener('DOMContentLoaded', () => {
                 articleContent.innerHTML = marked.parse(text);
             }
             
-            // ページトップへスクロール
-            window.scrollTo(0, 0);
-            
             // コマンドパレットを閉じる
             closeCommandPalette();
+            
+            // 現在の記事IDを更新
+            currentArticleId = newArticleId;
+            
+            // DOM更新後に位置復元
+            requestAnimationFrame(() => {
+                const savedPosition = localStorage.getItem(`scroll_${currentArticleId}`);
+                if (savedPosition && parseInt(savedPosition) > 0) {
+                    // 保存された位置にスクロール
+                    window.scrollTo({ 
+                        top: parseInt(savedPosition), 
+                        behavior: 'instant' 
+                    });
+                } else {
+                    // 保存位置がない場合はトップにスクロール
+                    window.scrollTo({ 
+                        top: 0, 
+                        behavior: 'instant' 
+                    });
+                }
+            });
             
         } catch (error) {
             console.error('記事の読み込みに失敗しました:', error);
             articleContent.innerHTML = '<p>記事の読み込みに失敗しました。</p>';
+            currentArticleId = null;
         }
     }
     
