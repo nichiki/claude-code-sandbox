@@ -337,9 +337,17 @@ document.addEventListener('DOMContentLoaded', () => {
     function formatDate(dateStr) {
         const date = new Date(dateStr);
         const year = date.getFullYear();
-        const month = date.getMonth() + 1;
-        const day = date.getDate();
-        return `${year}年${month}月${day}日`;
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}.${month}.${day}`;
+    }
+    
+    // 文字数フォーマット
+    function formatWordCount(count) {
+        if (count >= 1000) {
+            return `${(count / 1000).toFixed(1)}k`;
+        }
+        return count.toString();
     }
     
     // Markdown記事の読み込み
@@ -361,8 +369,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 // 記事を表示
                 articleContent.innerHTML = `
                     <div class="article-meta">
-                        <span class="date">${formatDate(frontmatter.date)}</span>
-                        ${frontmatter.author ? `<span class="author">— ${frontmatter.author}</span>` : ''}
+                        <div class="article-meta-main">
+                            ${formatDate(frontmatter.date)}${frontmatter.author ? ` • ${frontmatter.author}` : ''}${frontmatter.readingTime ? ` • ${frontmatter.readingTime} min read` : ''}${frontmatter.wordCount ? ` • ${formatWordCount(frontmatter.wordCount)} words` : ''}
+                        </div>
+                        ${frontmatter.category ? `<div class="article-meta-category">${frontmatter.category}</div>` : ''}
                     </div>
                     ${htmlContent}
                 `;

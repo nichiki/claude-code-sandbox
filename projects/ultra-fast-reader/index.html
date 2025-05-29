@@ -69,5 +69,18 @@
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js"></script>
     <script src="script.js"></script>
+    <!-- SVG Filter for paper texture -->
+    <svg style="display: none;">
+        <defs>
+            <filter id="paper-texture">
+                <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="3" result="noise" seed="1" />
+                <feColorMatrix in="noise" type="saturate" values="0"/>
+                <feComponentTransfer>
+                    <feFuncA type="discrete" tableValues="0 .02 .02 .02 .02"/>
+                </feComponentTransfer>
+                <feComposite operator="over" in2="SourceGraphic"/>
+            </filter>
+        </defs>
+    </svg>
 </body>
 </html>

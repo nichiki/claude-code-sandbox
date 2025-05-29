@@ -1,18 +1,18 @@
 :root {
-    --bg-color: #fafafa;
-    --text-color: #1a1a1a;
-    --accent-color: #666;
-    --quote-border: #e0e0e0;
+    --bg-color: #faf7f0;      /* 生成り色（きなりいろ）- 和紙の色 */
+    --text-color: #3a3330;    /* 墨色（すみいろ）- 柔らかな墨 */
+    --accent-color: #787672;  /* 利休鼠（りきゅうねずみ）- 渋い灰茶色 */
+    --quote-border: #e0ddd6;  /* 薄い生成り */
     --max-width: 650px;
     --font-size: 16px;
     --line-height: 1.8;
 }
 
 [data-theme="dark"] {
-    --bg-color: #0a0a0a;
-    --text-color: #e8e8e8;
-    --accent-color: #999;
-    --quote-border: #333;
+    --bg-color: #1c1c1c;      /* 濡羽色（ぬればいろ）- 烏の濡れた羽 */
+    --text-color: #e8e3d3;    /* 胡粉色（ごふんいろ）- 貝殻の粉 */
+    --accent-color: #a8a499;  /* 灰白色（かいはくしょく）- 薄い灰色 */
+    --quote-border: #3a3835;  /* 暗い境界線 */
 }
 
 * {
@@ -35,6 +35,34 @@ body {
     letter-spacing: 0.02em;
     font-optical-sizing: auto;
     font-feature-settings: "liga" 1, "calt" 1;
+    position: relative;
+}
+
+/* Paper texture using CSS gradients for best performance */
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    opacity: 0.15; /* 織物のような微細なテクスチャ */
+    background-image: repeating-linear-gradient(
+        90deg,
+        rgba(0, 0, 0, 0),
+        rgba(0, 0, 0, 0) 2px,
+        rgba(0, 0, 0, 0.03) 2px,
+        rgba(0, 0, 0, 0.03) 3px
+    ),
+    repeating-linear-gradient(
+        0deg,
+        rgba(0, 0, 0, 0),
+        rgba(0, 0, 0, 0) 2px,
+        rgba(0, 0, 0, 0.03) 2px,
+        rgba(0, 0, 0, 0.03) 3px
+    );
+    pointer-events: none;
+    z-index: 1;
 }
 
 .app-container {
@@ -52,6 +80,8 @@ body {
     display: flex;
     flex-direction: column;
     width: 100%;
+    position: relative;
+    z-index: 2;
 }
 
 header {
@@ -232,12 +262,22 @@ body.font-mincho .content p {
 
 .article-meta {
     margin-bottom: 2rem;
-    color: var(--accent-color);
-    font-size: 0.9rem;
 }
 
-.article-meta .author {
-    margin-left: 0.5rem;
+.article-meta-main {
+    color: var(--accent-color);
+    font-size: 0.9rem;
+    margin-bottom: 0.4rem;
+    letter-spacing: 0.03em;
+    word-spacing: 0.1em;
+}
+
+.article-meta-category {
+    font-size: 0.8rem;
+    color: var(--accent-color);
+    opacity: 0.7;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
 }
 
 /* Command Palette Styles */
