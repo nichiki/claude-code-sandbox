@@ -2,6 +2,9 @@
 title: デジタルデトックスの重要性
 date: 2025-01-10
 author: 田中花子
+category: ライフスタイル
+readingTime: 5
+wordCount: 1243
 ---
 
 # デジタルデトックスの重要性

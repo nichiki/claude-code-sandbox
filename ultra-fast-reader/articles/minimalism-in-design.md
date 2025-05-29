@@ -2,6 +2,9 @@
 title: ミニマリズムとデザイン
 date: 2025-01-15
 author: 佐藤太郎
+category: デザイン
+readingTime: 3
+wordCount: 853
 ---
 
 # ミニマリズムとデザイン

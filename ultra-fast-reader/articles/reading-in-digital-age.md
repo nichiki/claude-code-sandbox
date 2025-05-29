@@ -2,6 +2,9 @@
 title: デジタル時代の読書論
 date: 2025-01-05
 author: 山田次郎
+category: 読書・教育
+readingTime: 6
+wordCount: 1567
 ---
 
 # デジタル時代の読書論
