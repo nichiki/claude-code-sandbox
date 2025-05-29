@@ -13,6 +13,7 @@
 | [helicopter-game](./projects/helicopter-game) | クラシックなヘリコプターゲーム | ✅ 完成 |
 | [modern-tetris](./projects/modern-tetris) | モダンなデザインのテトリス | ✅ 完成 |
 | [yohaku](./projects/yohaku) | 余白 - 日本の美意識を取り入れたミニマル読書アプリ | ✅ 完成 |
+| [form-showcase](./projects/form-showcase) | インタラクティブで美しいフォームパターンのコレクション | 🚧 開発中 |
 
 ## 🌐 プロジェクトを見る
 
