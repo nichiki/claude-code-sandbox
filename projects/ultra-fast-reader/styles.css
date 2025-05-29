@@ -4,7 +4,7 @@
     --accent-color: #666;
     --quote-border: #e0e0e0;
     --max-width: 650px;
-    --font-size: 18px;
+    --font-size: 16px;
     --line-height: 1.8;
 }
 
@@ -26,11 +26,15 @@ html {
 }
 
 body {
-    font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "游ゴシック", YuGothic, sans-serif;
+    font-family: "Inter", "Noto Sans JP", -apple-system, BlinkMacSystemFont, "Helvetica Neue", "游ゴシック", YuGothic, sans-serif;
     background-color: var(--bg-color);
     color: var(--text-color);
     line-height: var(--line-height);
     transition: background-color 0.3s ease, color 0.3s ease;
+    font-weight: 400;
+    letter-spacing: 0.02em;
+    font-optical-sizing: auto;
+    font-feature-settings: "liga" 1, "calt" 1;
 }
 
 .app-container {
@@ -59,10 +63,17 @@ header {
     border-bottom: 1px solid var(--quote-border);
 }
 
-h1 {
-    font-size: 1.5rem;
+header h1 {
+    font-size: 1.2rem;
     font-weight: 300;
     letter-spacing: 0.05em;
+}
+
+.content h1 {
+    font-size: 2.2rem;
+    font-weight: 200;
+    margin-bottom: 2rem;
+    letter-spacing: 0.02em;
 }
 
 .controls {
@@ -99,7 +110,7 @@ main {
 }
 
 .content h2 {
-    font-size: 2rem;
+    font-size: 1.8rem;
     font-weight: 200;
     margin-bottom: 2rem;
     letter-spacing: 0.02em;
@@ -108,6 +119,44 @@ main {
 .content p {
     margin-bottom: 1.5rem;
     text-align: justify;
+}
+
+.content h3 {
+    margin-top: 2.5rem;
+    margin-bottom: 1.5rem;
+    font-size: 1.3rem;
+    font-weight: 300;
+}
+
+.content h4 {
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+    font-weight: 400;
+}
+
+.content h5 {
+    margin-top: 1.5rem;
+    margin-bottom: 0.8rem;
+    font-size: 1rem;
+    font-weight: 400;
+}
+
+.content h6 {
+    margin-top: 1.5rem;
+    margin-bottom: 0.8rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.content ul, .content ol {
+    margin-bottom: 2rem;
+    padding-left: 2rem;
+}
+
+.content li {
+    margin-bottom: 0.5rem;
+    line-height: 1.8;
 }
 
 blockquote {
@@ -136,7 +185,7 @@ footer {
 
 @media (max-width: 768px) {
     :root {
-        --font-size: 16px;
+        --font-size: 14px;
     }
     
     .container {
@@ -157,11 +206,28 @@ footer {
 }
 
 .font-large {
-    --font-size: 22px;
+    --font-size: 18px;
 }
 
 .font-small {
-    --font-size: 16px;
+    --font-size: 14px;
+}
+
+/* Font Family Classes */
+body.font-gothic {
+    font-family: "Inter", "Noto Sans JP", -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif !important;
+}
+
+body.font-mincho {
+    font-family: "Crimson Pro", "Noto Serif JP", "游明朝", YuMincho, serif !important;
+    line-height: 1.9;
+    letter-spacing: 0.03em;
+}
+
+/* Better readability for mincho */
+body.font-mincho .content p {
+    text-align: left;
+    text-justify: inter-ideograph;
 }
 
 .article-meta {
@@ -309,4 +375,11 @@ footer {
     color: var(--bg-color);
     padding: 0 2px;
     border-radius: 2px;
+}
+
+
+/* Ensure command palette uses gothic font */
+.command-palette-input,
+.command-result {
+    font-family: "Inter", "Noto Sans JP", -apple-system, BlinkMacSystemFont, sans-serif !important;
 }
