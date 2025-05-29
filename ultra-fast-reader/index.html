@@ -8,25 +8,13 @@
 </head>
 <body>
     <div class="app-container">
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <h2>記事一覧</h2>
-                <button id="sidebar-toggle" aria-label="サイドバー切替">☰</button>
-            </div>
-            <nav class="article-list" id="article-list">
-                <!-- Articles will be loaded here -->
-            </nav>
-        </aside>
-        
-        <div class="sidebar-overlay" id="sidebar-overlay"></div>
-        
         <div class="container">
             <header>
                 <h1>読む</h1>
                 <div class="controls">
-                    <button id="mobile-sidebar-toggle" class="mobile-only" aria-label="メニュー">☰</button>
                     <button id="theme-toggle" aria-label="テーマ切替">◐</button>
                     <button id="font-size" aria-label="文字サイズ">A</button>
+                    <button id="command-palette-toggle" aria-label="コマンドパレット">⌘</button>
                 </div>
             </header>
             
@@ -56,6 +44,22 @@
             <footer>
                 <p>© 2025 Minimal Reader</p>
             </footer>
+        </div>
+    </div>
+    
+    <!-- Command Palette Modal -->
+    <div class="command-palette-overlay" id="command-palette-overlay">
+        <div class="command-palette" id="command-palette">
+            <div class="command-palette-header">
+                <input type="text" 
+                       class="command-palette-input" 
+                       id="command-palette-input" 
+                       placeholder="記事を検索、またはコマンドを入力..." 
+                       autocomplete="off">
+            </div>
+            <div class="command-palette-results" id="command-palette-results">
+                <!-- Results will be populated here -->
+            </div>
         </div>
     </div>
     
