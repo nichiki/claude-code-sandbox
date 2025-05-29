@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const commandPaletteResults = document.getElementById('command-palette-results');
     const articleContent = document.getElementById('article-content');
     const html = document.documentElement;
+    const body = document.body;
     
     // 記事リスト
     const articles = [
@@ -54,6 +55,22 @@ document.addEventListener('DOMContentLoaded', () => {
             subtitle: '大きい文字',
             action: () => setFontSize('font-large'),
             keywords: ['font', 'large', 'フォント', '大', '文字']
+        },
+        { 
+            id: 'font-gothic', 
+            title: 'フォント: ゴシック', 
+            icon: 'あ', 
+            subtitle: 'Inter + Noto Sans JP',
+            action: () => setFontFamily('font-gothic'),
+            keywords: ['font', 'gothic', 'フォント', 'ゴシック', 'ゴシック体', 'sans']
+        },
+        { 
+            id: 'font-mincho', 
+            title: 'フォント: 明朝', 
+            icon: 'あ', 
+            subtitle: 'Crimson Pro + Noto Serif JP',
+            action: () => setFontFamily('font-mincho'),
+            keywords: ['font', 'mincho', 'フォント', '明朝', '明朝体', 'serif']
         }
     ];
     
@@ -90,6 +107,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
+    // フォントファミリーの初期化
+    const savedFontFamily = localStorage.getItem('fontFamily');
+    if (savedFontFamily) {
+        body.classList.add(savedFontFamily);
+    }
+    
     fontSizeToggle.addEventListener('click', () => {
         // 現在のクラスを削除
         if (fontSizes[currentSizeIndex]) {
@@ -120,6 +143,22 @@ document.addEventListener('DOMContentLoaded', () => {
             localStorage.setItem('fontSize', sizeClass);
         } else {
             localStorage.removeItem('fontSize');
+        }
+        
+        closeCommandPalette();
+    }
+    
+    // フォントファミリー切り替え
+    function setFontFamily(fontClass) {
+        // すべてのフォントクラスを削除
+        body.classList.remove('font-gothic', 'font-mincho');
+        
+        // 新しいクラスを追加
+        if (fontClass) {
+            body.classList.add(fontClass);
+            localStorage.setItem('fontFamily', fontClass);
+        } else {
+            localStorage.removeItem('fontFamily');
         }
         
         closeCommandPalette();
